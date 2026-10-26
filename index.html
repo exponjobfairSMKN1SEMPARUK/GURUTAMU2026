@@ -34,8 +34,8 @@
                         }
                     },
                     boxShadow: {
-                        'glow': '0 0 25px -5px rgba(99, 102, 241, 0.25)',
-                        'glow-amber': '0 0 25px -5px rgba(245, 158, 11, 0.25)',
+                        'glow': '0 0 30px -5px rgba(99, 102, 241, 0.35)',
+                        'glow-amber': '0 0 30px -5px rgba(245, 158, 11, 0.35)',
                     }
                 }
             }
@@ -45,11 +45,30 @@
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
 
-        /* Custom Scrollbar */
+        /* Background Grid Pattern */
+        .bg-grid-pattern {
+            background-size: 30px 30px;
+            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        }
+
+        /* Smooth Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        ::-webkit-scrollbar-track { background: #090d16; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+
+        /* Custom Keyframe Animations */
+        @keyframes modalIn {
+            0% { opacity: 0; transform: scale(0.95) translateY(-20px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+
+        .animate-modal-in { animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-pulse-glow { animation: pulseGlow 6s ease-in-out infinite; }
 
         /* Print Styling Rules */
         @media print {
@@ -63,18 +82,18 @@
         .print-only { display: none; }
     </style>
 </head>
-<body class="bg-slate-950 min-h-screen flex flex-col text-slate-100 antialiased selection:bg-brand-500 selection:text-white">
+<body class="bg-slate-950 min-h-screen flex flex-col text-slate-100 antialiased selection:bg-brand-500 selection:text-white bg-grid-pattern">
 
-    <!-- CONTAINER CONTAINER POP-UP TOAST NOTIFIKASI SMOOTH -->
+    <!-- CONTAINER POP-UP TOAST NOTIFIKASI -->
     <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-3 pointer-events-none no-print"></div>
 
     <!-- TOP NAVBAR (no-print) -->
-    <header class="no-print bg-slate-900/80 backdrop-blur-xl border-b border-slate-800/80 sticky top-0 z-40 shadow-2xl">
+    <header class="no-print bg-slate-900/80 backdrop-blur-2xl border-b border-slate-800/80 sticky top-0 z-40 shadow-2xl">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap justify-between items-center gap-4">
             
-            <div class="flex items-center space-x-3.5">
-                <div class="relative group cursor-pointer">
-                    <div class="absolute -inset-1 bg-gradient-to-r from-brand-500 to-amber-500 rounded-2xl blur opacity-60 group-hover:opacity-100 transition duration-300"></div>
+            <div class="flex items-center space-x-3.5 cursor-pointer" onclick="switchTab('beranda')">
+                <div class="relative group">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-brand-500 to-amber-500 rounded-2xl blur opacity-70 group-hover:opacity-100 transition duration-300"></div>
                     <div class="relative bg-slate-900 border border-slate-700/80 p-2.5 rounded-xl text-amber-400">
                         <i class="fa-solid fa-graduation-cap text-2xl"></i>
                     </div>
@@ -92,22 +111,20 @@
 
             <!-- Navigation Buttons -->
             <div class="flex items-center space-x-3">
-                <div class="bg-slate-950/80 p-1.5 rounded-2xl border border-slate-800 flex shadow-inner">
-                    <button id="btnNavForm" onclick="switchTab('form')" class="px-4 py-2 rounded-xl font-bold text-xs transition-all duration-300 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 shadow-glow-amber flex items-center gap-2">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                        <span>Form Kaprog</span>
-                    </button>
-                    <button id="btnNavAdmin" onclick="tryAccessAdmin()" class="px-4 py-2 rounded-xl font-bold text-xs text-slate-400 hover:text-white transition-all duration-300 flex items-center gap-2">
-                        <i class="fa-solid fa-user-shield"></i>
-                        <span>Panel Admin</span>
-                    </button>
-                </div>
+                <button onclick="openFormModal()" class="px-4 py-2 rounded-xl font-extrabold text-xs bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 shadow-glow-amber transition-all duration-300 flex items-center gap-2">
+                    <i class="fa-solid fa-plus-circle text-sm"></i>
+                    <span>Input Rekap Baru</span>
+                </button>
+                <button id="btnNavAdmin" onclick="tryAccessAdmin()" class="px-4 py-2 rounded-xl font-bold text-xs bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/80 transition-all duration-300 flex items-center gap-2">
+                    <i class="fa-solid fa-user-shield text-brand-400"></i>
+                    <span>Panel Admin</span>
+                </button>
             </div>
         </div>
     </header>
 
     <!-- REAL-TIME STATUS BAR (no-print) -->
-    <div class="no-print bg-slate-900/50 border-b border-slate-800/50 text-[11px] py-2 px-4 text-slate-400">
+    <div class="no-print bg-slate-900/40 border-b border-slate-800/40 text-[11px] py-2 px-4 text-slate-400 backdrop-blur-md">
         <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2">
             <div class="flex items-center space-x-2.5">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
@@ -124,180 +141,138 @@
         </div>
     </div>
 
-    <!-- MAIN CONTAINER -->
+    <!-- MAIN CONTENT CONTAINER -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
 
-        <!-- ==================== HERO BANNER ==================== -->
-        <section class="no-print relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-brand-950 to-slate-900 border border-slate-800/80 shadow-2xl p-6 sm:p-10">
-            <!-- Glow FX -->
-            <div class="absolute -top-32 -right-32 w-96 h-96 bg-brand-600/20 rounded-full blur-3xl pointer-events-none"></div>
-            <div class="absolute -bottom-32 -left-32 w-96 h-96 bg-amber-500/15 rounded-full blur-3xl pointer-events-none"></div>
+        <!-- ==================== BERANDA UTAMA (LANDING PAGE FUTURISTIK) ==================== -->
+        <section id="tabBeranda" class="space-y-8 transition-all duration-300 no-print">
+            
+            <!-- HERO HERO BANNER -->
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-brand-950 to-slate-900 border border-slate-800/80 shadow-2xl p-6 sm:p-12">
+                <!-- Background Glow Animations -->
+                <div class="absolute -top-32 -right-32 w-96 h-96 bg-brand-600/30 rounded-full blur-3xl pointer-events-none animate-pulse-glow"></div>
+                <div class="absolute -bottom-32 -left-32 w-96 h-96 bg-amber-500/20 rounded-full blur-3xl pointer-events-none animate-pulse-glow" style="animation-delay: 2s;"></div>
 
-            <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                <div class="lg:col-span-8 space-y-4">
-                    <div class="inline-flex items-center space-x-2 bg-slate-800/80 border border-slate-700/80 px-3.5 py-1.5 rounded-full text-xs text-amber-300 font-semibold tracking-wide backdrop-blur-md">
-                        <i class="fa-solid fa-handshake-angle text-amber-400"></i>
-                        <span>Penyelarasan Vokasi SMKN 1 Semparuk dengan DUDI</span>
+                <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    <div class="lg:col-span-7 space-y-5">
+                        <div class="inline-flex items-center space-x-2 bg-slate-800/80 border border-slate-700/80 px-4 py-1.5 rounded-full text-xs text-amber-300 font-semibold tracking-wide backdrop-blur-md">
+                            <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i>
+                            <span>Portal Penyelarasan Vokasi SMKN 1 Semparuk x DUDI</span>
+                        </div>
+
+                        <h2 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight text-white">
+                            Pelaksanaan <br class="hidden sm:inline">
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-200 to-indigo-300">Guru Tamu 2026</span>
+                        </h2>
+
+                        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-light max-w-xl">
+                            Platform terpadu pendokumentasian dan rekapitulasi keikutsertaan praktisi industri DUDI dalam memperkuat kompetensi vokasi siswa **SMKN 1 Semparuk**.
+                        </p>
+
+                        <div class="pt-2 flex flex-wrap gap-4">
+                            <button onclick="openFormModal()" class="px-7 py-3.5 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-extrabold text-xs shadow-glow-amber transition-all duration-300 flex items-center gap-2.5 transform hover:-translate-y-0.5">
+                                <i class="fa-solid fa-file-pen text-base"></i>
+                                <span>Input Rekap Baru (Kaprog)</span>
+                            </button>
+                            <button onclick="tryAccessAdmin()" class="px-7 py-3.5 rounded-2xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700 font-bold text-xs transition-all duration-300 flex items-center gap-2.5 transform hover:-translate-y-0.5">
+                                <i class="fa-solid fa-lock text-brand-400 text-base"></i>
+                                <span>Masuk Panel Admin</span>
+                            </button>
+                        </div>
                     </div>
 
-                    <h2 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight text-white">
-                        Rekap Pelaksanaan <br class="hidden sm:inline">
-                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-200 to-indigo-300">Guru Tamu 2026</span>
-                    </h2>
+                    <!-- Executive Visual KPI Cards -->
+                    <div class="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-slate-900/80 backdrop-blur-xl p-5 rounded-2xl border border-slate-800 shadow-xl hover:border-brand-500/50 transition duration-300">
+                            <div class="w-10 h-10 bg-brand-500/10 border border-brand-500/30 text-brand-400 rounded-xl flex items-center justify-center mb-3">
+                                <i class="fa-solid fa-calendar-check text-lg"></i>
+                            </div>
+                            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Pelaksanaan</p>
+                            <h3 id="statTotal" class="text-3xl font-black text-white mt-1">0</h3>
+                            <p class="text-[10px] text-brand-400 mt-1 font-medium"><i class="fa-solid fa-arrow-trend-up mr-1"></i>Kegiatan Terdata</p>
+                        </div>
 
-                    <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-light max-w-2xl">
-                        Platform resmi rekapitulasi keterlibatan ahli industri dalam program Praktisi Mengajar. Dirancang khusus untuk mempermudah para Kepala Program Keahlian (Kaprog) **SMKN 1 Semparuk** dalam mencatat kegiatan belajar bersama DUDI secara akurat.
-                    </p>
+                        <div class="bg-slate-900/80 backdrop-blur-xl p-5 rounded-2xl border border-slate-800 shadow-xl hover:border-amber-500/50 transition duration-300">
+                            <div class="w-10 h-10 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-xl flex items-center justify-center mb-3">
+                                <i class="fa-solid fa-building text-lg"></i>
+                            </div>
+                            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Mitra DUDI</p>
+                            <h3 id="statDudi" class="text-3xl font-black text-amber-300 mt-1">0</h3>
+                            <p class="text-[10px] text-amber-400 mt-1 font-medium"><i class="fa-solid fa-handshake mr-1"></i>Perusahaan Industri</p>
+                        </div>
 
-                    <div class="pt-2 flex flex-wrap gap-3">
-                        <button onclick="switchTab('form')" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-extrabold text-xs shadow-glow-amber transition-all duration-300 flex items-center gap-2">
-                            <i class="fa-solid fa-plus-circle text-sm"></i>
-                            <span>Input Rekap Baru (Kaprog)</span>
-                        </button>
-                        <button onclick="tryAccessAdmin()" class="px-6 py-3 rounded-2xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700 font-bold text-xs transition-all duration-300 flex items-center gap-2">
-                            <i class="fa-solid fa-lock text-brand-400 text-sm"></i>
-                            <span>Masuk Panel Admin</span>
-                        </button>
+                        <div class="sm:col-span-2 bg-gradient-to-br from-slate-900 to-brand-950 backdrop-blur-xl p-5 rounded-2xl border border-brand-800/40 shadow-xl flex justify-between items-center">
+                            <div>
+                                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Siswa Penerima Manfaat</p>
+                                <h3 id="statSiswa" class="text-2xl font-black text-white mt-0.5">0 Siswa</h3>
+                            </div>
+                            <div class="w-12 h-12 bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 rounded-2xl flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-users-viewfinder"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Executive Stat Cards -->
-                <div class="lg:col-span-4 bg-slate-900/70 backdrop-blur-xl rounded-2xl p-5 border border-slate-800 shadow-2xl space-y-4">
-                    <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                        <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
-                            <i class="fa-solid fa-chart-simple text-amber-400"></i>
-                            <span>Ringkasan Real-Time</span>
+            <!-- TABLE PREVIEW UNTUK UMUM / KAPROG -->
+            <div class="bg-slate-900/80 backdrop-blur-xl rounded-3xl border border-slate-800 shadow-2xl overflow-hidden p-6 space-y-4">
+                <div class="flex flex-wrap justify-between items-center gap-4 border-b border-slate-800 pb-4">
+                    <div>
+                        <h3 class="text-base font-extrabold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-amber-400"></i>
+                            <span>Prinjauan Rekap Pelaksanaan Terbaru</span>
                         </h3>
-                        <span class="text-[10px] bg-brand-500/20 text-brand-300 border border-brand-500/30 px-2 py-0.5 rounded-md font-mono">2026</span>
+                        <p class="text-xs text-slate-400 mt-0.5">Data ringkas pelaksanaan guru tamu yang telah diinput oleh Kaprog</p>
                     </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80">
-                            <p class="text-[10px] text-slate-400 font-medium">Total Kegiatan</p>
-                            <p id="statTotal" class="text-2xl font-black text-white mt-0.5">0</p>
-                            <p class="text-[10px] text-brand-400 font-medium mt-0.5">Pelaksanaan</p>
-                        </div>
-                        <div class="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80">
-                            <p class="text-[10px] text-slate-400 font-medium">Mitra DUDI</p>
-                            <p id="statDudi" class="text-2xl font-black text-amber-300 mt-0.5">0</p>
-                            <p class="text-[10px] text-amber-400/80 font-medium mt-0.5">Perusahaan</p>
-                        </div>
-                    </div>
-
-                    <div class="bg-gradient-to-r from-brand-950 to-slate-900 p-3 rounded-xl border border-brand-800/40 text-xs text-slate-300 flex justify-between items-center">
-                        <span class="font-medium text-slate-400">Total Siswa Terlibat:</span>
-                        <strong id="statSiswa" class="text-white font-extrabold text-sm">0 Siswa</strong>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ==================== TAB 1: FORM KAPROG ==================== -->
-        <section id="tabForm" class="no-print transition-all duration-300">
-            <div class="max-w-3xl mx-auto bg-slate-900/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-800 overflow-hidden">
-                <div class="bg-slate-950 px-6 sm:px-8 py-6 text-white flex flex-wrap justify-between items-center gap-4 border-b border-slate-800">
-                    <div class="flex items-center space-x-3.5">
-                        <div class="bg-brand-600/20 border border-brand-500/40 p-2.5 rounded-xl text-amber-300">
-                            <i class="fa-solid fa-file-signature text-xl"></i>
-                        </div>
-                        <div>
-                            <h2 class="text-base font-bold text-white">Formulir Rekap Pelaksanaan Guru Tamu</h2>
-                            <p class="text-xs text-slate-400 mt-0.5">Khusus diisi oleh Kaprog / Ketua Jurusan</p>
-                        </div>
-                    </div>
-                    <span class="bg-slate-900 text-slate-300 text-[10px] px-3 py-1 rounded-lg font-mono border border-slate-800">
-                        SMKN 1 Semparuk
-                    </span>
-                </div>
-
-                <form id="guruTamuForm" onsubmit="handleFormSubmit(event)" class="p-6 sm:p-8 space-y-6">
                     
-                    <div>
-                        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-                            Kompetensi Keahlian <span class="text-rose-400">*</span>
-                        </label>
-                        <select id="kompetensi" required class="w-full px-4 py-3.5 text-xs rounded-xl bg-slate-950 border border-slate-700/80 text-slate-200 focus:ring-2 focus:ring-brand-500 outline-none transition">
-                            <option value="">-- Pilih Kompetensi Keahlian SMKN 1 Semparuk --</option>
-                            <option value="TSM">TSM (Teknik Sepeda Motor)</option>
-                            <option value="TKR">TKR (Teknik Kendaraan Ringan)</option>
-                            <option value="TB">TB (Tata Busana)</option>
-                            <option value="RPL">RPL (Rekayasa Perangkat Lunak)</option>
-                            <option value="APHP">APHP (Agribisnis Pengolahan Hasil Pertanian)</option>
-                            <option value="TP">TP (Teknik Pemesinan)</option>
-                            <option value="BD">BD (Bisnis Digital)</option>
-                            <option value="AKUNTANSI">AKUNTANSI (Akuntansi & Keuangan Lembaga)</option>
-                            <option value="PERHOTELAN">PERHOTELAN</option>
-                            <option value="DKV">DKV (Desain Komunikasi Visual)</option>
-                            <option value="Manajemen Logistik">Manajemen Logistik</option>
-                        </select>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-                                Tanggal Pelaksanaan <span class="text-rose-400">*</span>
-                            </label>
-                            <input type="date" id="tanggal" required class="w-full px-4 py-3.5 text-xs rounded-xl bg-slate-950 border border-slate-700/80 text-slate-200 focus:ring-2 focus:ring-brand-500 outline-none transition">
+                    <div class="flex items-center gap-3">
+                        <div class="relative min-w-[200px]">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                            <input type="text" id="searchKeyword" oninput="renderTable()" placeholder="Cari DUDI / Guru..." class="w-full pl-9 pr-4 py-2 text-xs rounded-xl bg-slate-950 border border-slate-700/80 text-slate-200 focus:ring-2 focus:ring-brand-500 outline-none">
                         </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-                                Jumlah Siswa <span class="text-rose-400">*</span>
-                            </label>
-                            <input type="number" id="jumlahSiswa" min="1" placeholder="Contoh: 36" required class="w-full px-4 py-3.5 text-xs rounded-xl bg-slate-950 border border-slate-700/80 text-slate-200 focus:ring-2 focus:ring-brand-500 outline-none transition placeholder-slate-500">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-                                Nama DUDI <span class="text-rose-400">*</span>
-                            </label>
-                            <input type="text" id="namaDudi" placeholder="Contoh: PT. Telkom Indonesia" required class="w-full px-4 py-3.5 text-xs rounded-xl bg-slate-950 border border-slate-700/80 text-slate-200 focus:ring-2 focus:ring-brand-500 outline-none transition placeholder-slate-500">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-                                Nama Guru Tamu <span class="text-rose-400">*</span>
-                            </label>
-                            <input type="text" id="namaGuruTamu" placeholder="Contoh: Budi Santoso, S.T." required class="w-full px-4 py-3.5 text-xs rounded-xl bg-slate-950 border border-slate-700/80 text-slate-200 focus:ring-2 focus:ring-brand-500 outline-none transition placeholder-slate-500">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-                            Alamat DUDI <span class="text-rose-400">*</span>
-                        </label>
-                        <textarea id="alamatDudi" rows="3" placeholder="Contoh: Jl. Ahmad Yani No. 45, Pontianak" required class="w-full px-4 py-3.5 text-xs rounded-xl bg-slate-950 border border-slate-700/80 text-slate-200 focus:ring-2 focus:ring-brand-500 outline-none transition placeholder-slate-500"></textarea>
-                    </div>
-
-                    <!-- Submit Actions -->
-                    <div class="pt-4 border-t border-slate-800 flex flex-wrap justify-end gap-3">
-                        <button type="reset" class="px-6 py-3 rounded-xl border border-slate-700 text-slate-300 font-bold text-xs hover:bg-slate-800 transition duration-200">
-                            <i class="fa-solid fa-rotate-left mr-2"></i>Reset
-                        </button>
-                        <button type="submit" id="btnSubmit" class="px-8 py-3 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-extrabold text-xs shadow-glow transition duration-300 flex items-center gap-2">
-                            <i class="fa-solid fa-paper-plane"></i>
-                            <span>Simpan Rekap Pelaksanaan</span>
+                        <button onclick="fetchDataFromBackend()" class="p-2.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition" title="Sync Data">
+                            <i class="fa-solid fa-rotate text-brand-400"></i>
                         </button>
                     </div>
-                </form>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead class="bg-slate-950 text-slate-300 font-bold uppercase tracking-wider text-[10px] border-b border-slate-800">
+                            <tr>
+                                <th class="p-4 text-center w-12">NO</th>
+                                <th class="p-4">KOMPETENSI KEAHLIAN</th>
+                                <th class="p-4">TANGGAL PELAKSANAAN</th>
+                                <th class="p-4">NAMA DUDI</th>
+                                <th class="p-4">ALAMAT DUDI</th>
+                                <th class="p-4">NAMA GURU TAMU</th>
+                                <th class="p-4 text-center">JUMLAH SISWA</th>
+                            </tr>
+                        </thead>
+                        <tbody id="previewTableBody" class="divide-y divide-slate-800/80 text-slate-300">
+                            <!-- Populated Dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="previewEmptyState" class="hidden p-12 text-center text-slate-500">
+                    <i class="fa-regular fa-folder-open text-5xl mb-3 text-slate-700"></i>
+                    <p class="font-bold text-sm text-slate-300">Belum ada data rekap ditemukan</p>
+                </div>
             </div>
         </section>
 
-        <!-- ==================== TAB 2: PANEL ADMIN ==================== -->
+        <!-- ==================== PANEL ADMIN (TERKUNCI PIN) ==================== -->
         <section id="tabAdmin" class="hidden space-y-6 transition-all duration-300 no-print">
             
-            <!-- TOOLBAR ADMIN -->
             <div class="bg-slate-900/90 backdrop-blur-xl p-4 sm:p-5 rounded-2xl border border-slate-800 shadow-xl flex flex-wrap gap-4 items-center justify-between">
-                <!-- Search & Filter -->
                 <div class="flex flex-wrap items-center gap-3 flex-1 min-w-[280px]">
                     <div class="relative flex-1 min-w-[220px]">
                         <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-                        <input type="text" id="searchKeyword" oninput="renderTable()" placeholder="Cari DUDI, Guru Tamu, Alamat..." class="w-full pl-9 pr-4 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-700/80 text-slate-200 focus:ring-2 focus:ring-brand-500 outline-none placeholder-slate-500">
+                        <input type="text" id="adminSearchKeyword" oninput="renderAdminTable()" placeholder="Cari di Panel Admin..." class="w-full pl-9 pr-4 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-700/80 text-slate-200 focus:ring-2 focus:ring-brand-500 outline-none">
                     </div>
 
-                    <select id="filterKompetensi" onchange="renderTable()" class="px-3.5 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-700/80 text-slate-200 focus:ring-2 focus:ring-brand-500 outline-none">
+                    <select id="filterKompetensi" onchange="renderAdminTable()" class="px-3.5 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-700/80 text-slate-200 focus:ring-2 focus:ring-brand-500 outline-none">
                         <option value="">Semua Kompetensi</option>
                         <option value="TSM">TSM</option>
                         <option value="TKR">TKR</option>
@@ -313,24 +288,22 @@
                     </select>
                 </div>
 
-                <!-- Export, Print & Logout -->
                 <div class="flex items-center gap-2.5">
-                    <button onclick="fetchDataFromBackend()" class="px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2" title="Muat Ulang Data">
+                    <button onclick="fetchDataFromBackend()" class="px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2">
                         <i class="fa-solid fa-rotate text-brand-400"></i>
-                        <span>Sync</span>
+                        <span>Sync Data</span>
                     </button>
                     <button onclick="window.print()" class="px-4 py-2.5 text-xs font-bold rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 transition flex items-center gap-2 shadow-glow-amber">
                         <i class="fa-solid fa-print"></i>
                         <span>Cetak Laporan</span>
                     </button>
-                    <button onclick="logoutAdmin()" class="px-3.5 py-2.5 text-xs font-bold rounded-xl bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 border border-rose-500/40 transition flex items-center gap-1.5" title="Keluar Mode Admin">
+                    <button onclick="logoutAdmin()" class="px-3.5 py-2.5 text-xs font-bold rounded-xl bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 border border-rose-500/40 transition flex items-center gap-1.5">
                         <i class="fa-solid fa-right-from-bracket"></i>
                         <span>Keluar Admin</span>
                     </button>
                 </div>
             </div>
 
-            <!-- TABLE REKAPITULASI ADMIN -->
             <div class="bg-slate-900/90 backdrop-blur-xl rounded-2xl border border-slate-800 shadow-2xl overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-xs">
@@ -346,17 +319,10 @@
                                 <th class="p-4 text-center w-24">AKSI ADMIN</th>
                             </tr>
                         </thead>
-                        <tbody id="tableBody" class="divide-y divide-slate-800/80 text-slate-300">
-                            <!-- Dynamic Content -->
+                        <tbody id="adminTableBody" class="divide-y divide-slate-800/80 text-slate-300">
+                            <!-- Dynamic Admin Content -->
                         </tbody>
                     </table>
-                </div>
-                
-                <!-- Empty State -->
-                <div id="emptyState" class="hidden p-16 text-center text-slate-500">
-                    <i class="fa-regular fa-folder-open text-6xl mb-4 text-slate-700"></i>
-                    <p class="font-bold text-base text-slate-300">Belum ada data rekap ditemukan</p>
-                    <p class="text-xs text-slate-500 mt-1">Gunakan Form Kaprog untuk menambahkan data baru.</p>
                 </div>
             </div>
         </section>
@@ -403,9 +369,99 @@
 
     </main>
 
+    <!-- ==================== MODAL POP-UP FORM KAPROG (MODERN & SMOOTH) ==================== -->
+    <div id="formModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center hidden p-4 no-print overflow-y-auto">
+        <div class="bg-slate-900 rounded-3xl max-w-2xl w-full border border-slate-800/90 shadow-2xl overflow-hidden animate-modal-in my-8">
+            <div class="bg-slate-950 px-6 py-5 text-white flex justify-between items-center border-b border-slate-800/80">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-brand-600/20 border border-brand-500/40 p-2.5 rounded-xl text-amber-300">
+                        <i class="fa-solid fa-file-signature text-lg"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-sm font-bold text-white">Formulir Rekap Pelaksanaan Guru Tamu</h2>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Isikan data sesuai pelaksanaan di lapangan</p>
+                    </div>
+                </div>
+                <button onclick="closeFormModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form id="guruTamuForm" onsubmit="handleFormSubmit(event)" class="p-6 sm:p-8 space-y-5 text-xs">
+                
+                <div>
+                    <label class="block font-bold text-slate-300 uppercase tracking-wider mb-2">
+                        Kompetensi Keahlian <span class="text-rose-400">*</span>
+                    </label>
+                    <select id="kompetensi" required class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700/80 text-slate-200 focus:ring-2 focus:ring-brand-500 outline-none transition">
+                        <option value="">-- Pilih Kompetensi Keahlian SMKN 1 Semparuk --</option>
+                        <option value="TSM">TSM (Teknik Sepeda Motor)</option>
+                        <option value="TKR">TKR (Teknik Kendaraan Ringan)</option>
+                        <option value="TB">TB (Tata Busana)</option>
+                        <option value="RPL">RPL (Rekayasa Perangkat Lunak)</option>
+                        <option value="APHP">APHP (Agribisnis Pengolahan Hasil Pertanian)</option>
+                        <option value="TP">TP (Teknik Pemesinan)</option>
+                        <option value="BD">BD (Bisnis Digital)</option>
+                        <option value="AKUNTANSI">AKUNTANSI (Akuntansi & Keuangan Lembaga)</option>
+                        <option value="PERHOTELAN">PERHOTELAN</option>
+                        <option value="DKV">DKV (Desain Komunikasi Visual)</option>
+                        <option value="Manajemen Logistik">Manajemen Logistik</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-bold text-slate-300 uppercase tracking-wider mb-2">
+                            Tanggal Pelaksanaan <span class="text-rose-400">*</span>
+                        </label>
+                        <input type="date" id="tanggal" required class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700/80 text-slate-200 focus:ring-2 focus:ring-brand-500 outline-none transition">
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-slate-300 uppercase tracking-wider mb-2">
+                            Jumlah Siswa <span class="text-rose-400">*</span>
+                        </label>
+                        <input type="number" id="jumlahSiswa" min="1" placeholder="Contoh: 36" required class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700/80 text-slate-200 focus:ring-2 focus:ring-brand-500 outline-none transition placeholder-slate-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-bold text-slate-300 uppercase tracking-wider mb-2">
+                            Nama DUDI <span class="text-rose-400">*</span>
+                        </label>
+                        <input type="text" id="namaDudi" placeholder="Contoh: PT. Telkom Indonesia" required class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700/80 text-slate-200 focus:ring-2 focus:ring-brand-500 outline-none transition placeholder-slate-500">
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-slate-300 uppercase tracking-wider mb-2">
+                            Nama Guru Tamu <span class="text-rose-400">*</span>
+                        </label>
+                        <input type="text" id="namaGuruTamu" placeholder="Contoh: Budi Santoso, S.T." required class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700/80 text-slate-200 focus:ring-2 focus:ring-brand-500 outline-none transition placeholder-slate-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-300 uppercase tracking-wider mb-2">
+                        Alamat DUDI <span class="text-rose-400">*</span>
+                    </label>
+                    <textarea id="alamatDudi" rows="2" placeholder="Contoh: Jl. Ahmad Yani No. 45, Pontianak" required class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700/80 text-slate-200 focus:ring-2 focus:ring-brand-500 outline-none transition placeholder-slate-500"></textarea>
+                </div>
+
+                <div class="pt-4 border-t border-slate-800/80 flex justify-end gap-3">
+                    <button type="button" onclick="closeFormModal()" class="px-5 py-2.5 rounded-xl border border-slate-700 text-slate-300 font-bold hover:bg-slate-800 transition">Batal</button>
+                    <button type="submit" id="btnSubmit" class="px-7 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-extrabold shadow-glow-amber transition flex items-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span>Kirim Rekap</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- MODAL PIN ADMIN -->
-    <div id="pinModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4 no-print">
-        <div class="bg-slate-900 rounded-3xl max-w-sm w-full border border-slate-800 p-6 space-y-4 text-xs shadow-2xl text-center">
+    <div id="pinModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center hidden p-4 no-print">
+        <div class="bg-slate-900 rounded-3xl max-w-sm w-full border border-slate-800 p-6 space-y-4 text-xs shadow-2xl text-center animate-modal-in">
             <div class="w-12 h-12 bg-amber-400/10 border border-amber-400/30 text-amber-400 rounded-2xl flex items-center justify-center mx-auto text-xl">
                 <i class="fa-solid fa-lock"></i>
             </div>
@@ -425,9 +481,9 @@
         </div>
     </div>
 
-    <!-- EDIT MODAL -->
-    <div id="editModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4 no-print">
-        <div class="bg-slate-900 rounded-3xl max-w-lg w-full border border-slate-800 p-6 space-y-4 text-xs shadow-2xl">
+    <!-- MODAL EDIT ADMIN -->
+    <div id="editModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center hidden p-4 no-print">
+        <div class="bg-slate-900 rounded-3xl max-w-lg w-full border border-slate-800 p-6 space-y-4 text-xs shadow-2xl animate-modal-in">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3">
                 <h3 class="font-bold text-sm text-white flex items-center gap-2">
                     <i class="fa-solid fa-pen-to-square text-amber-400"></i> Edit Data Rekap Pelaksanaan
@@ -508,7 +564,16 @@
             fetchDataFromBackend();
         });
 
-        // ==================== SYSTEM POP-UP TOAST NOTIFIKASI ====================
+        // ==================== FORM MODAL HANDLERS ====================
+        function openFormModal() {
+            document.getElementById("formModal").classList.remove("hidden");
+        }
+
+        function closeFormModal() {
+            document.getElementById("formModal").classList.add("hidden");
+        }
+
+        // ==================== TOAST NOTIFICATION SYSTEM ====================
         function showToast(title, message, type = 'success') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
@@ -519,9 +584,6 @@
             if (type === 'error') {
                 bgConfig = "bg-slate-900/95 border-rose-500/40 text-rose-400";
                 icon = "fa-circle-xmark";
-            } else if (type === 'warning') {
-                bgConfig = "bg-slate-900/95 border-amber-500/40 text-amber-400";
-                icon = "fa-triangle-exclamation";
             } else if (type === 'info') {
                 bgConfig = "bg-slate-900/95 border-indigo-500/40 text-indigo-400";
                 icon = "fa-circle-info";
@@ -541,19 +603,14 @@
 
             container.appendChild(toast);
 
-            // Animate In
-            setTimeout(() => {
-                toast.classList.remove('translate-x-full', 'opacity-0');
-            }, 10);
-
-            // Auto Remove
+            setTimeout(() => toast.classList.remove('translate-x-full', 'opacity-0'), 10);
             setTimeout(() => {
                 toast.classList.add('translate-x-full', 'opacity-0');
                 setTimeout(() => toast.remove(), 300);
             }, 4000);
         }
 
-        // Akses Proteksi Admin
+        // ==================== ADMIN & NAVIGATION HANDLERS ====================
         function tryAccessAdmin() {
             if (isAdminLoggedIn) {
                 switchTab('admin');
@@ -573,7 +630,7 @@
                 switchTab('admin');
                 showToast("Otorisasi Berhasil", "Selamat datang di Panel Admin Rekap Guru Tamu.", "success");
             } else {
-                showToast("Akses Ditolak", "PIN Admin yang Anda masukkan salah!", "error");
+                showToast("Akses Ditolak", "PIN Admin salah!", "error");
                 document.getElementById("inputPin").value = "";
             }
         }
@@ -584,27 +641,25 @@
 
         function logoutAdmin() {
             isAdminLoggedIn = false;
-            switchTab('form');
+            switchTab('beranda');
             showToast("Mode Admin Ditutup", "Sesi admin telah berakhir.", "info");
         }
 
         function switchTab(tab) {
-            const btnForm = document.getElementById("btnNavForm");
             const btnAdmin = document.getElementById("btnNavAdmin");
-            const tabForm = document.getElementById("tabForm");
+            const tabBeranda = document.getElementById("tabBeranda");
             const tabAdmin = document.getElementById("tabAdmin");
 
-            if (tab === 'form') {
-                tabForm.classList.remove("hidden");
+            if (tab === 'beranda') {
+                tabBeranda.classList.remove("hidden");
                 tabAdmin.classList.add("hidden");
-                btnForm.className = "px-4 py-2 rounded-xl font-bold text-xs transition-all duration-300 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 shadow-glow-amber flex items-center gap-2";
-                btnAdmin.className = "px-4 py-2 rounded-xl font-bold text-xs text-slate-400 hover:text-white transition-all duration-300 flex items-center gap-2";
-            } else {
-                tabForm.classList.add("hidden");
-                tabAdmin.classList.remove("hidden");
-                btnAdmin.className = "px-4 py-2 rounded-xl font-bold text-xs transition-all duration-300 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 shadow-glow-amber flex items-center gap-2";
-                btnForm.className = "px-4 py-2 rounded-xl font-bold text-xs text-slate-400 hover:text-white transition-all duration-300 flex items-center gap-2";
+                btnAdmin.className = "px-4 py-2 rounded-xl font-bold text-xs bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/80 transition-all duration-300 flex items-center gap-2";
                 renderTable();
+            } else {
+                tabBeranda.classList.add("hidden");
+                tabAdmin.classList.remove("hidden");
+                btnAdmin.className = "px-4 py-2 rounded-xl font-bold text-xs bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 shadow-glow-amber flex items-center gap-2";
+                renderAdminTable();
             }
         }
 
@@ -612,12 +667,13 @@
             try {
                 const res = await fetch(GAS_URL);
                 guruTamuData = await res.json();
-                showToast("Data Disinkronkan", "Data rekap terbaru berhasil dimuat dari server.", "info");
+                showToast("Data Disinkronkan", "Data rekap terbaru berhasil dimuat.", "info");
             } catch (err) {
                 console.error("Gagal ambil data:", err);
                 guruTamuData = JSON.parse(localStorage.getItem("local_gt_2026") || "[]");
             }
             renderTable();
+            if (isAdminLoggedIn) renderAdminTable();
         }
 
         async function handleFormSubmit(e) {
@@ -652,19 +708,19 @@
 
             document.getElementById("guruTamuForm").reset();
             btn.disabled = false;
-            btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Simpan Rekap Pelaksanaan`;
+            btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Kirim Rekap`;
 
-            showToast("Berhasil Disimpan", "Data rekap guru tamu baru telah berhasil terkirim!", "success");
+            closeFormModal();
+            showToast("Berhasil Disimpan", "Data rekap guru tamu baru telah terkirim!", "success");
             renderTable();
         }
 
+        // Render Preview Table di Beranda
         function renderTable() {
-            const tbody = document.getElementById("tableBody");
+            const tbody = document.getElementById("previewTableBody");
             const printTbody = document.getElementById("printTableBody");
-            const emptyState = document.getElementById("emptyState");
-
+            const emptyState = document.getElementById("previewEmptyState");
             const keyword = document.getElementById("searchKeyword").value.toLowerCase();
-            const filterKompetensi = document.getElementById("filterKompetensi").value;
 
             tbody.innerHTML = "";
             printTbody.innerHTML = "";
@@ -674,12 +730,10 @@
             let countFiltered = 0;
 
             const filteredData = guruTamuData.filter(item => {
-                const matchesSearch = (item.namaDudi || '').toLowerCase().includes(keyword) ||
-                                      (item.namaGuruTamu || '').toLowerCase().includes(keyword) ||
-                                      (item.alamatDudi || '').toLowerCase().includes(keyword) ||
-                                      (item.kompetensi || '').toLowerCase().includes(keyword);
-                const matchesKomp = filterKompetensi === "" || item.kompetensi === filterKompetensi;
-                return matchesSearch && matchesKomp;
+                return (item.namaDudi || '').toLowerCase().includes(keyword) ||
+                       (item.namaGuruTamu || '').toLowerCase().includes(keyword) ||
+                       (item.alamatDudi || '').toLowerCase().includes(keyword) ||
+                       (item.kompetensi || '').toLowerCase().includes(keyword);
             });
 
             if (filteredData.length === 0) {
@@ -694,7 +748,7 @@
                 if (item.namaDudi) dudiSet.add(item.namaDudi.trim());
 
                 const tr = document.createElement("tr");
-                tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800/80";
+                tr.className = "hover:bg-slate-800/40 transition border-b border-slate-800/80";
                 tr.innerHTML = `
                     <td class="p-4 text-center font-mono text-slate-500">${index + 1}</td>
                     <td class="p-4 font-extrabold text-amber-300">${item.kompetensi}</td>
@@ -703,16 +757,6 @@
                     <td class="p-4 text-slate-400 max-w-xs truncate" title="${item.alamatDudi}">${item.alamatDudi}</td>
                     <td class="p-4 font-semibold text-slate-200">${item.namaGuruTamu}</td>
                     <td class="p-4 text-center font-black text-indigo-400">${item.jumlahSiswa}</td>
-                    <td class="p-4 text-center whitespace-nowrap">
-                        <div class="flex items-center justify-center gap-2">
-                            <button onclick="openEditModal('${item.id}')" class="p-2 text-blue-400 hover:text-blue-300 hover:bg-slate-800 rounded-lg transition" title="Edit Data">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                            </button>
-                            <button onclick="deleteData('${item.id}')" class="p-2 text-rose-400 hover:text-rose-300 hover:bg-slate-800 rounded-lg transition" title="Hapus Data">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
                 `;
                 tbody.appendChild(tr);
 
@@ -729,10 +773,52 @@
                 printTbody.appendChild(printTr);
             });
 
-            // Update Stats
             document.getElementById("statTotal").innerText = countFiltered;
             document.getElementById("statDudi").innerText = dudiSet.size;
             document.getElementById("statSiswa").innerText = totalSiswaCount + " Siswa";
+        }
+
+        // Render Table Admin
+        function renderAdminTable() {
+            const tbody = document.getElementById("adminTableBody");
+            const keyword = document.getElementById("adminSearchKeyword").value.toLowerCase();
+            const filterKomp = document.getElementById("filterKompetensi").value;
+
+            tbody.innerHTML = "";
+
+            const filteredData = guruTamuData.filter(item => {
+                const matchesSearch = (item.namaDudi || '').toLowerCase().includes(keyword) ||
+                                      (item.namaGuruTamu || '').toLowerCase().includes(keyword) ||
+                                      (item.alamatDudi || '').toLowerCase().includes(keyword) ||
+                                      (item.kompetensi || '').toLowerCase().includes(keyword);
+                const matchesKomp = filterKomp === "" || item.kompetensi === filterKomp;
+                return matchesSearch && matchesKomp;
+            });
+
+            filteredData.forEach((item, index) => {
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-slate-800/40 transition border-b border-slate-800/80";
+                tr.innerHTML = `
+                    <td class="p-4 text-center font-mono text-slate-500">${index + 1}</td>
+                    <td class="p-4 font-extrabold text-amber-300">${item.kompetensi}</td>
+                    <td class="p-4 font-medium text-slate-200">${formatDate(item.tanggal)}</td>
+                    <td class="p-4 font-bold text-slate-100">${item.namaDudi}</td>
+                    <td class="p-4 text-slate-400 max-w-xs truncate" title="${item.alamatDudi}">${item.alamatDudi}</td>
+                    <td class="p-4 font-semibold text-slate-200">${item.namaGuruTamu}</td>
+                    <td class="p-4 text-center font-black text-indigo-400">${item.jumlahSiswa}</td>
+                    <td class="p-4 text-center whitespace-nowrap">
+                        <div class="flex items-center justify-center gap-2">
+                            <button onclick="openEditModal('${item.id}')" class="p-2 text-blue-400 hover:text-blue-300 hover:bg-slate-800 rounded-lg transition" title="Edit">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button onclick="deleteData('${item.id}')" class="p-2 text-rose-400 hover:text-rose-300 hover:bg-slate-800 rounded-lg transition" title="Hapus">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
         function openEditModal(id) {
@@ -786,7 +872,8 @@
 
             closeEditModal();
             renderTable();
-            showToast("Berhasil Diperbarui", "Perubahan data rekap telah berhasil disimpan.", "success");
+            renderAdminTable();
+            showToast("Berhasil Diperbarui", "Data rekap berhasil diperbarui.", "success");
         }
 
         async function deleteData(id) {
@@ -806,7 +893,8 @@
             guruTamuData = guruTamuData.filter(d => d.id.toString() !== id.toString());
             localStorage.setItem("local_gt_2026", JSON.stringify(guruTamuData));
             renderTable();
-            showToast("Data Dihapus", "Satu baris data rekap berhasil dihapus.", "warning");
+            renderAdminTable();
+            showToast("Data Dihapus", "Satu data rekap berhasil dihapus.", "info");
         }
 
         function formatDate(str) {
